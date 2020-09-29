@@ -1,4 +1,4 @@
-
+#! /usr/bin/r   
 
 
 
@@ -130,59 +130,49 @@ aggregate_public_candles<-function(data, aggregation = 5){
 }
 
 
+# check if data exist in path, if not create file, if exist, add new rows
 
-save_data<-function(data, path){
+save_data<-function(data, path, name = NULL){
     #
-    
-    CSV_ETH <- list.files(path = path, pattern = paste0(deparse(substitute(data)),".csv") )
-    #CSV_ETH
-    
-    if (length(CSV_ETH) == 0){
+    if (length(name) == 0){
+        name = deparse(substitute(data))
+    }
+    else{name = name}
+    #
+    CSV <- list.files(path = path, pattern = paste0(name, ".csv") )
+    CSV
+    #
+    your_path = paste0(path, "\\", name, ".csv")
+    your_path
+    #
+    if (length(CSV) == 0){
         # file does not exist yet, need to create it
-        your_path = paste0(path, "\\", deparse(substitute(data)),".csv")
         write.csv(data, your_path, row.names = FALSE)
     }
-    
-    # file does exist in folder and will be modified
-    if (length(CSV_ETH) != 0){
-        #
-        existing_data<-read.csv(file =  paste0(path, "\\", deparse(substitute(data)),".csv"), )
+    # file does exist in folder it will be modified if rows differ
+    if (length(CSV) != 0){
+        existing_data <- read.csv(file = (paste0(path, "\\", name,".csv")), )
         first.row = existing_data[1,]
-
-        to_check.zeit<-as.character(first.row$time)
-        data.zeit<-as.character(data$time)
-        index_similar = which(data.zeit == to_check.zeit)
-
-        # if no similarity add data to existing data
-        if (length(index_similar) == 0 ) {
-              write.table(data,
-              file = paste0(path, "\\", deparse(substitute(data)),".csv"), 
-              append = T,
-              sep=",",
-              row.names=F,
-              col.names=F)
+        first.row_time = as.POSIXlt(first.row$time)
+        max_index = max(which(data$time >= first.row_time))
+        max_index
+        if (max_index > 1){
+            data <- data[1:max_index,]
         }
-
-        # add new data rows to existing data file
-        if (length(index_similar) == 1) {
-              write.table(data[1:(index_similar-1),],
-              file = paste0(path, "\\", deparse(substitute(data)),".csv"), 
-              append = T,
-              sep=",",
-              row.names=F,
-              col.names=F)
+        if (max_index == 1){
+            data <- NULL
         }
-
-        #read, order, remove duplicated and save file again
-        existing_data<-read.csv(file =  paste0(path, "\\", deparse(substitute(data)),".csv"), )
-        existing_data <- existing_data[order(existing_data$time, decreasing = TRUE),]
-        existing_data <- existing_data[!duplicated(existing_data$time),]
         #
-        your_path = paste0(path, "\\", deparse(substitute(data)),".csv")
-        write.csv(existing_data , your_path, row.names = FALSE)
-
+        #read, order, remove duplicated and save file again
+        if (length(data[,1]) >= 2){
+            existing_data<-read.csv(file =  paste0(path, "\\", name,".csv"), )
+            existing_data <- rbind(data, existing_data)
+            #head(existing_data)
+            existing_data <- existing_data[order(existing_data$time, decreasing = TRUE),]
+            existing_data <- existing_data[!duplicated(existing_data$time),]
+            write.csv(existing_data , your_path, row.names = FALSE)
+        }
     }
-
 }
 
 
@@ -200,6 +190,8 @@ ETH_USD_15 <- public_candles(product_id = "ETH-USD", granularity = 900)
 
 
 
+head(ETH_USD_1)
+
 ### Test save 1 und 5 Min Data
 path = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro"
 
@@ -209,6 +201,15 @@ save_data(data = ETH_USD_1 , path = path)
 save_data(data = ETH_USD_5 , path = path)
 
 save_data(data = ETH_USD_15 , path = path)
+
+
+
+
+head(ETH_USD_1)
+existing_data<-read.csv(file = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro\\ETH_USD_1.csv", sep = ",")
+
+head(existing_data)
+existing_data[1:10,]
 
 
 
