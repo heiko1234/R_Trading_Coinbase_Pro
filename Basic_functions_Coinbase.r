@@ -73,8 +73,8 @@ public_candles <- function(product_id = "ETH-USD",
   
   #transform
   content <- as.data.frame(content)
-  content <-
-    content[order(content$V1), ] # sort chorologically by time since epoch
+  #content <-
+  #  content[order(content$V1), ] # sort chorologically by time since epoch
   
   names(content) <-
     c("time", "low", "high", "open", "close", "volume")
@@ -90,6 +90,57 @@ public_candles <- function(product_id = "ETH-USD",
 
 ####
 public_candles(product_id = "ETH-USD", granularity = 900)
+
+
+
+public_candles(product_id = "ETH-USD", granularity = 60)
+
+
+# Daten Abruf und aggregation
+first_data <- public_candles(product_id = "ETH-USD", granularity = 60)
+first_data[1:20,]
+
+
+
+aggregate_public_candles<-function(data, aggregation = 5){
+    rows = floor(length(data$time)/aggregation)
+    #
+    rowslist = NULL
+    for (i in 0:(rows-1)){
+        rowslist = c(rowslist, (i*aggregation+1))
+    }
+    rowslist
+    output_time = data[rowslist, 1]
+    output_close = data[rowslist, 5]
+    output_open = data[(rowslist+(aggregation-1)), 4]
+    #
+    output_high = NULL
+    output_low = NULL
+    output_volume = NULL
+    #
+    for (i in 1:rows){
+        data_slide = data[i:(i*aggregation), ]
+        min_data = min(data_slide[,2])
+        max_data = max(data_slide[,3])
+        sum_vol_data = sum(data_slide[,6])
+        output_high = c(output_high, max_data)
+        output_low = c(output_low, min_data)
+        output_volume = c(output_volume, sum_vol_data)
+    }
+
+    #construct dataframe with time, low, high, open, close, volume
+    output = data.frame(output_time, output_low, output_high, output_open, output_close, output_volume)
+    #
+    colnames(output) = c("time", "low", "high", "open", "close", "volume")
+    
+    #return
+    return(output)
+}
+
+
+aggregate_public_candles(data = first_data, aggregation = 15)
+
+
 
 
 
