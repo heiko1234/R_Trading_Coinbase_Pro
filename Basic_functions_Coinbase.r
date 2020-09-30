@@ -89,7 +89,7 @@ public_candles <- function(product_id = "ETH-USD",
   }
   #
   content <- content[order(content$time, decreasing = TRUE),]
-  #return----
+  #return-
   return(content)
 }
 
