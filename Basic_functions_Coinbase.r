@@ -51,7 +51,7 @@ parse_response <- function(path, query = NULL) {
 #granularity = NULL
 
 
-public_candles <- function(product_id = "ETH-USD",
+public_candles <- function(product_id = "ETH-EUR",
                            start = NULL,
                            end = NULL,
                            granularity = NULL,
@@ -132,7 +132,7 @@ aggregate_public_candles<-function(data, aggregation = 5){
 
 # check if data exist in path, if not create file, if exist, add new rows
 
-save_data<-function(data, path, name = NULL){
+save_data<-function(data, path, separator = "\\", name = NULL){
     #
     if (length(name) == 0){
         name = deparse(substitute(data))
@@ -142,7 +142,7 @@ save_data<-function(data, path, name = NULL){
     CSV <- list.files(path = path, pattern = paste0(name, ".csv") )
     CSV
     #
-    your_path = paste0(path, "\\", name, ".csv")
+    your_path = paste0(path, separator, name, ".csv")
     your_path
     #
     if (length(CSV) == 0){
@@ -151,7 +151,7 @@ save_data<-function(data, path, name = NULL){
     }
     # file does exist in folder it will be modified if rows differ
     if (length(CSV) != 0){
-        existing_data <- read.csv(file = (paste0(path, "\\", name,".csv")), )
+        existing_data <- read.csv(file = (paste0(path, separator, name,".csv")), )
         first.row = existing_data[1,]
         first.row_time = as.POSIXlt(first.row$time)
         max_index = max(which(data$time >= first.row_time))
@@ -165,7 +165,7 @@ save_data<-function(data, path, name = NULL){
         #
         #read, order, remove duplicated and save file again
         if (length(data[,1]) >= 2){
-            existing_data<-read.csv(file =  paste0(path, "\\", name,".csv"), )
+            existing_data<-read.csv(file =  paste0(path, separator, name,".csv"), )
             existing_data <- rbind(data, existing_data)
             #head(existing_data)
             existing_data <- existing_data[order(existing_data$time, decreasing = TRUE),]
@@ -180,33 +180,35 @@ save_data<-function(data, path, name = NULL){
 
 # Daten Abruf und aggregation
 # 1 Min Data
-ETH_USD_1 <- public_candles(product_id = "ETH-USD", granularity = 60)
+ETH_EUR_1 <- public_candles(product_id = "ETH-EUR", granularity = 60)
 
 # 5 Min aggregated Data
-ETH_USD_5 <- aggregate_public_candles(data = ETH_USD_1, aggregation = 5)
+ETH_EUR_5 <- aggregate_public_candles(data = ETH_EUR_1, aggregation = 5)
 
 #15 Min aggregated Data
-ETH_USD_15 <- public_candles(product_id = "ETH-USD", granularity = 900)
+ETH_EUR_15 <- public_candles(product_id = "ETH-EUR", granularity = 900)
 
 
 
-head(ETH_USD_1)
+head(ETH_EUR_1)
+
+
 
 ### Test save 1 und 5 Min Data
 path = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro"
 
 
-save_data(data = ETH_USD_1 , path = path)
+save_data(data = ETH_EUR_1 , path = path)
 
-save_data(data = ETH_USD_5 , path = path)
+save_data(data = ETH_EUR_5 , path = path)
 
-save_data(data = ETH_USD_15 , path = path)
-
-
+save_data(data = ETH_EUR_15 , path = path)
 
 
-head(ETH_USD_1)
-existing_data<-read.csv(file = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro\\ETH_USD_1.csv", sep = ",")
+
+
+head(ETH_EUR_1)
+existing_data<-read.csv(file = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro\\ETH_EUR_1.csv", sep = ",")
 
 head(existing_data)
 existing_data[1:10,]
