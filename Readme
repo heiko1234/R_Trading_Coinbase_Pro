@@ -8,6 +8,10 @@ It is a weekend project to analyze the data.
 
 Feel free to use parts of your own.
 
-I prefer analysis in R. Most people use python for APIs but it is also possible to do in R.
+I prefer analysis in R. Most people use python for APIs, so we make the analysis in R and use python for the trading bot and API.
+
 
 Feel free to contribue since this is my first project using GIT or github.
+
+
+
