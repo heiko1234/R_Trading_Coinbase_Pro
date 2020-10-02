@@ -1,4 +1,4 @@
-
+#! /user/bin/python3
 
 
 # exchange_name = "coinbasepro"
@@ -39,7 +39,7 @@ raspberry = False    #True or False
 
 
 # Activates or deactivates the Trading Algorithm
-Automated_Trading = False   #or True
+Automated_Trading = True    #False   #or True
 
 
 #Load Trading Passwords
@@ -79,7 +79,7 @@ auth_client = cbpro.AuthenticatedClient(my_api_key,my_secret,my_passphrase)
 
 
 # Amount of Invests, Reserves and Logs
-MinimumInvestment = 20.00  #EUR
+MinimumInvest = 20.00  #EUR
 MinimumInvestLog = 20.00   #EUR
 MinimumCryptoLog = 0.1   #ETH
 
@@ -175,7 +175,8 @@ available_Crypto = available_Crypto - MinimumCryptoLog
 
 if available_Crypto < 0:
     available_Crypto = 0
-available_Crypto
+available_Crypto = round(available_Crypto, 2)
+available_Crypto 
 
 # The amount of currency owned
 owned_Crypto = float(auth_client.get_account(specificID_ETH)['balance'])
@@ -190,6 +191,7 @@ tradeable_FIAT = available_FIAT - MinimumInvestLog
 
 if tradeable_FIAT < 0:
     tradeable_FIAT = 0
+tradeable_FIAT =round(tradeable_FIAT, 2)
 tradeable_FIAT 
 
 # The maximum amount of Cryptocurrency that can be purchased with your funds
@@ -230,7 +232,7 @@ print(key_infos)
 Index_Last_BUY = which(Trading_History.loc[:,"order"] == "BUY")[0]
 STOP_LOSS_LIMIT = Trading_History.loc[Index_Last_BUY,"tradeable_value"]
 STOP_LOSS_LIMIT = 0.8 * STOP_LOSS_LIMIT
-
+STOP_LOSS_LIMIT
 
 ##################################################
 
@@ -341,7 +343,7 @@ if actual_time16 < last_HD_15 and actual_time61 < last_HD_60:
     action = action
 else:
     action = "HOLD"
-
+#action = "BUY"
 
 ##################################################################
 ###Placing Orders###
@@ -360,15 +362,20 @@ if action == "BUY" and Automated_Trading == True and tradeable_FIAT > MinimumInv
     # print(message)
 
     # Update funding level and Buy variable
-    action = "HOLD"
+    action = "BUY"
 
     # Update TradingLog
     ORDER = "BUY"
 
     key_infos = [[dt_string, ORDER, tradeable_FIAT, available_Crypto, owned_Crypto, owned_FIAT, float(currentPrice), tradeable_value, total_value] ]
     key_infos = pd.DataFrame(data = key_infos, columns = ["date", "order", "tradeable_fiat", "tradeable_crypto", "owned_crypto", "owned_fiat", "current_price", "tradeable_value", "total_value"])
-
+    print(key_infos)
+    if raspberry == True:
+        Trading_History = Trading_History.iloc[:,1:]
+    if raspberry == False:
+        Trading_History = Trading_History
     TH = key_infos.append(Trading_History)
+    TH
 
     if raspberry == False:
         TH.to_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv", sep =",")
@@ -389,14 +396,18 @@ if action == "SELL" and Automated_Trading == True and available_Crypto > 0:
     # print(message)
 
     # Update funding level and Buy variable
-    action = "HOLD"
+    action = "SELL"
 
     # Update TradingLog
     ORDER = "SELL"
 
     key_infos = [[dt_string, ORDER, tradeable_FIAT, available_Crypto, owned_Crypto, owned_FIAT, float(currentPrice), tradeable_value, total_value] ]
     key_infos = pd.DataFrame(data = key_infos, columns = ["date", "order", "tradeable_fiat", "tradeable_crypto", "owned_crypto", "owned_fiat", "current_price", "tradeable_value", "total_value"])
-
+    print(key_infos)
+    if raspberry == True:
+        Trading_History = Trading_History.iloc[:,1:]
+    if raspberry == False:
+        Trading_History = Trading_History
     TH = key_infos.append(Trading_History)
 
     if raspberry == False:
@@ -419,7 +430,10 @@ if (possibleIncome_available) <= STOP_LOSS_LIMIT:
 
         key_infos = [[dt_string, ORDER, tradeable_FIAT, available_Crypto, owned_Crypto, owned_FIAT, float(currentPrice), tradeable_value, total_value] ]
         key_infos = pd.DataFrame(data = key_infos, columns = ["date", "order", "tradeable_fiat", "tradeable_crypto", "owned_crypto", "owned_fiat", "current_price", "tradeable_value", "total_value"])
-
+        if raspberry == True:
+            Trading_History = Trading_History.iloc[:,1:]
+        if raspberry == False:
+            Trading_History = Trading_History
         TH = key_infos.append(Trading_History)
         if raspberry == False:
             TH.to_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv", sep =",")
