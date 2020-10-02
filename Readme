@@ -1,17 +1,54 @@
 Coinbase Trading of Cryptos
 
-This is a weekend project to use the Coinbase Pro API to download the available Crypto data and to analyze them in terms of buy or sell indicators.
+This is a weekend project to use the Coinbase Pro API to download the available Crypto data and to analyze them in terms of hold, buy or sell indicators.
 
 You can use it but it is not a financial advisor ! There is a high risk that you will lose money !
 
-It is a weekend project to analyze the data.
+It is a weekend project to analyze the data and to use them hopefully in a good way.
 
 Feel free to use parts of your own.
 
 I prefer analysis in R. Most people use python for APIs, so we make the analysis in R and use python for the trading bot and API.
 
+I write them on my laptop and deploy them later on a raspberry pi for autonomus trading.
+
 
 Feel free to contribue since this is my first project using GIT or github.
+
+
+
+#How to use it
+
+The idea behind these files is to run them with a crontab on a raspberry.
+
+Both R scripts can be used and must be small modified for your system on the path were you saved them and where you like to keep your data.
+
+The python script uses the .csv file for storing the access data (Here is only a test template). Take it, modify it, use it.
+
+Also the python script should be run with a crontab on a raspberry.
+
+R makes the analysis autonomus.
+
+Python takes the analysis and has rules to make decisions for trading. 
+
+Feel free to modify your trading rules in the python script.
+
+
+This is not a financial advisor! and you should only invest the money that you can loss if you like to use it!
+
+There is a high risk that you will lose money.
+
+The more you invest the more you can lose!
+
+Please be aware that you can lose everything.
+
+
+
+
+
+
+
+
 
 
 
