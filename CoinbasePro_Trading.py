@@ -39,7 +39,7 @@ raspberry = False    #True or False
 
 
 # Activates or deactivates the Trading Algorithm
-Automatic_Trading = False   #or True
+Automated_Trading = False   #or True
 
 
 #Load Trading Passwords
@@ -51,7 +51,7 @@ if raspberry == False:
 
 # raspberry: path = "home/pi/R/ETH.Data"
 if raspberry == True:
-    pw = pd.read_csv("home/pi/R/CoinbasePro_API.csv")
+    pw = pd.read_csv("/home/pi/R/ETH.Data/CoinbasePro_API.csv")
     #print("raspberry")
 
 
@@ -156,11 +156,11 @@ if raspberry == False:
 # raspberry: path = "home/pi/R/ETH.Data"
 
 if raspberry == True:
-    Historical_Data_15 = pd.read_csv("home/pi/R/ETH.Data/ETH_EUR_15_Trading.csv")
+    Historical_Data_15 = pd.read_csv("/home/pi/R/ETH.Data/ETH_EUR_15_Trading.csv")
 
-    Historical_Data_60 = pd.read_csv("home/pi/R/ETH.Data/ETH_EUR_60_Trading.csv")
+    Historical_Data_60 = pd.read_csv("/home/pi/R/ETH.Data/ETH_EUR_60_Trading.csv")
 
-    Trading_History = pd.read_csv("home/pi/R/ETH.Data/TradingLog.csv")
+    Trading_History = pd.read_csv("/home/pi/R/ETH.Data/TradingLog.csv")
 
 
 
@@ -220,7 +220,7 @@ ORDER = action
 # Summary of infos
 key_infos = [[dt_string, ORDER, tradeable_FIAT, available_Crypto, owned_Crypto, owned_FIAT, float(currentPrice), tradeable_value, total_value] ]
 key_infos = pd.DataFrame(data = key_infos, columns = ["date", "order", "tradeable_fiat", "tradeable_crypto", "owned_crypto", "owned_fiat", "current_price", "tradeable_value", "total_value"])
-#key_infos
+print(key_infos)
 
 
 
@@ -308,7 +308,7 @@ Last_BUY_price = Trading_History.loc[Index_Last_BUY,"current_price"]
 if action == "SELL" and currentPrice >= (Last_BUY_price * 1.01):
     action = "SELL"
 
-else:
+if action == "SELL" and currentPrice < (Last_BUY_price * 1.01):
     action = "HOLD"
 
 
@@ -333,6 +333,9 @@ last_HD_60 = dt.datetime.strptime(last_HD_60,"%Y-%m-%d %H:%M:%S")
 last_HD_60 = dt.datetime.strftime(last_HD_60,"%d.%m.%Y %H:%M:%S" )
 last_HD_60
 
+# actual_time16
+# last_HD_15
+# actual_time16 < last_HD_15
 
 if actual_time16 < last_HD_15 and actual_time61 < last_HD_60:
     action = action
@@ -371,7 +374,7 @@ if action == "BUY" and Automated_Trading == True and tradeable_FIAT > MinimumInv
         TH.to_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv", sep =",")
 
     if raspberry == True:
-        TH.to_csv("home/pi/R/ETH.Data/TradingLog.csv", sep =",")
+        TH.to_csv("/home/pi/R/ETH.Data/TradingLog.csv", sep =",")
 
 
 # Sell Conditions: latest derivative is - and previous is +
@@ -400,7 +403,7 @@ if action == "SELL" and Automated_Trading == True and available_Crypto > 0:
         TH.to_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv", sep =",")
 
     if raspberry == True:
-        TH.to_csv("home/pi/R/ETH.Data/TradingLog.csv", sep =",")
+        TH.to_csv("/home/pi/R/ETH.Data/TradingLog.csv", sep =",")
 
 
 # Stop loss: sell everything and stop trading if your value is less than 80% of last buy investment
@@ -422,7 +425,7 @@ if (possibleIncome_available) <= STOP_LOSS_LIMIT:
             TH.to_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv", sep =",")
 
         if raspberry == True:
-            TH.to_csv("home/pi/R/ETH.Data/TradingLog.csv", sep =",")
+            TH.to_csv("/home/pi/R/ETH.Data/TradingLog.csv", sep =",")
 
 
 

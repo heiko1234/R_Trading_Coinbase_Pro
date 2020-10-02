@@ -204,13 +204,13 @@ ETH_EUR_60 <- public_candles(product_id = "ETH-EUR", granularity = 3600)
 
 
 
-if (raspberry = FALSE){
+if (raspberry == FALSE){
   path = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro"
   separator = "\\"
 }
 
-if (raspberry = TRUE){
-  path = "home/pi/R/ETH.Data"
+if (raspberry == TRUE){
+  path = "/home/pi/R/ETH.Data"
   separator = "/"
 }
 

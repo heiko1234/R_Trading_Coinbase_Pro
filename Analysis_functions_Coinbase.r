@@ -526,9 +526,9 @@ if (raspberry == FALSE){
 
 if (raspberry == TRUE){
 
-  existing_data1<-read.csv(file = "home/pi/R/ETH.Data/ETH_EUR_15.csv", sep = ",")
+  existing_data1<-read.csv(file = "/home/pi/R/ETH.Data/ETH_EUR_15.csv", sep = ",")
 
-  existing_data2<-read.csv(file = "home/pi/R/ETH.Data/ETH_EUR_60.csv", sep = ",")
+  existing_data2<-read.csv(file = "/home/pi/R/ETH.Data/ETH_EUR_60.csv", sep = ",")
 } 
 
 
@@ -594,7 +594,7 @@ if (raspberry == FALSE){
 
 
 if (raspberry == TRUE){
-  path = "home/pi/R/ETH.Data"
+  path = "/home/pi/R/ETH.Data"
 
   save_data(data = TTR_data1, path = path, separator = "/", name = "ETH_EUR_15_Trading")
   save_data(data = TTR_data2, path = path, separator = "/", name = "ETH_EUR_60_Trading")
