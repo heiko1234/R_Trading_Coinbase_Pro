@@ -1,4 +1,4 @@
-#! /usr/bin/r   
+#! /usr/bin/Rscript  
 
 
 
@@ -8,9 +8,9 @@
 
 require(stringi)
 require(curl)
-require(xts)
-require(TTR)
-library(quantmod)
+#require(xts)
+#require(TTR)
+#library(quantmod)
 library(httr)
 library(jsonlite)
 
@@ -46,9 +46,6 @@ parse_response <- function(path, query = NULL) {
 
 # Get bids and asks for provided currency-pair (products) by Coinbase Pro API
 #product_id = "ETH-USD"
-#start = NULL
-#end = NULL
-#granularity = NULL
 
 
 public_candles <- function(product_id = "ETH-EUR",
@@ -89,7 +86,7 @@ public_candles <- function(product_id = "ETH-EUR",
   }
   #
   content <- content[order(content$time, decreasing = TRUE),]
-  #return-
+  #return
   return(content)
 }
 
@@ -188,30 +185,34 @@ ETH_EUR_5 <- aggregate_public_candles(data = ETH_EUR_1, aggregation = 5)
 #15 Min aggregated Data
 ETH_EUR_15 <- public_candles(product_id = "ETH-EUR", granularity = 900)
 
+#60 Min aggregated Data
+ETH_EUR_60 <- public_candles(product_id = "ETH-EUR", granularity = 3600)
 
 
-head(ETH_EUR_1)
+
+#head(ETH_EUR_1)
 
 
 
 ### Test save 1 und 5 Min Data
 path = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro"
+#path = "home/pi/R/ETH.Data"
 
 
-save_data(data = ETH_EUR_1 , path = path)
+save_data(data = ETH_EUR_1 , separator = "\\", path = path)
 
-save_data(data = ETH_EUR_5 , path = path)
+save_data(data = ETH_EUR_5 , separator = "\\", path = path)
 
-save_data(data = ETH_EUR_15 , path = path)
+save_data(data = ETH_EUR_15 , separator = "\\", path = path)
+
+save_data(data = ETH_EUR_60 , separator = "\\", path = path)
 
 
+# head(ETH_EUR_1)
+# existing_data<-read.csv(file = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro\\ETH_EUR_1.csv", sep = ",")
 
-
-head(ETH_EUR_1)
-existing_data<-read.csv(file = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro\\ETH_EUR_1.csv", sep = ",")
-
-head(existing_data)
-existing_data[1:10,]
+# head(existing_data)
+# existing_data[1:10,]
 
 
 

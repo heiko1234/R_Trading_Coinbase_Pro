@@ -1,14 +1,15 @@
 
 
+
+# Literature for a Trading Bot
+
 # https://blog.shrimpy.io/blog/python-scripts-for-crypto-trading-bots
 # https://help.shrimpy.io/en/collections/1409920-tutorials
 
 # https://medium.com/@ethanbond39/how-to-begin-algorithmic-trading-in-python-981edd51baa1
 
 
-# pip install shrimpy-python
-
-#import shrimpy
+# pip install cbpro
 
 ### Imports
 
@@ -23,16 +24,21 @@ import time
 
 #exchange_name = "coinbasepro"
 
-#Trade/View
+#Load Trading Passwords
 
 try: 
+    # Windows PC
     pw = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/CoinbasePro_API.csv")
+
+    # raspberry: path = "home/pi/R/ETH.Data"
+    # pw = pd.read_csv("home/pi/R/CoinbasePro_API.csv")
 
 except:
     # In case something went wrong with loading passwords
     break
 
-##### Trade/VIEW/Transfer
+
+##### Trade/VIEW APIs Keys
 
 my_api_key = pw.iloc[0,0]
 my_secret = pw.iloc[0,1]
@@ -48,12 +54,12 @@ auth_client = cbpro.AuthenticatedClient(my_api_key,my_secret,my_passphrase)
 
 ####
 
-################################################################################
-                        ### Investment Details ###
+################################################
+### Investment Details ###
 
 
 # Activates or deactivates the Trading Algorithm
-On_Trading = False   #or True
+Automatic_Trading = False   #or True
 
 
 # Amount of Invests, Reserves and Logs
@@ -64,8 +70,7 @@ MinimumCryptoLog = 0.1   #ETH
 
 
 # Currency to trade, for reference:
-# 'BCH-USD' = Bitcoin Cash, 'BTC-USD' = Bitcoin, 'ETH-USD' = Ether
-# currency = 'ETH-USD'
+# 'ETH-EUR' = Ether
 currency = "ETH-EUR"
 
 
@@ -86,10 +91,12 @@ specificID_ETH
 specificID_EUR = getSpecificAccount("EUR")
 specificID_EUR
 
+
 # Granularity (in seconds). So 300 = data from every 5 min, 900 = 15 Min
 period = 900
 
-# Start off by looking to buy
+
+# Start off by looking to buy, sell or just hold
 
 action = "HOLD"   #"BUY"  Or  "SELL"
 
@@ -97,7 +104,7 @@ action = "HOLD"   #"BUY"  Or  "SELL"
 ################################################
 ################################################
 
-################################################################################
+#################################################
 ### Get Current Data ###
 
 try:
@@ -115,25 +122,33 @@ except:
     print("Error Encountered")
     break
 
-#####################################################
-#####################################################
 
-### Strategy ###
+##################################################
+##################################################
+################### Strategy #####################
+### Strategy comes from Data Analysis with R #####
+##################################################
+##################################################
+
 
 try:
     Historical_Data_15 = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/ETH_EUR_15_Trading.csv")
 
-    Historical_Data_60 = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/ETH_EUR_60.csv")
+    Historical_Data_60 = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/ETH_EUR_60_Trading.csv")
+
+    #Trading_History = pd.read_csv("
+
 
 except:
     break
 
 
 Historical_Data_15
+Historical_Data_60
 
 
 
-################################################################################
+################################################################
 ### Funds to Use ###
 
 
@@ -164,12 +179,13 @@ possibleIncome_available
 
 
 
-################################################################################
-###Decision Making###
+##################################################################
+###Placing Orders###
+###Check Conditions for either BUY or SELL Orders ###
 
-# Buy Conditions: latest derivative is + and previous is -
+# Buy Conditions:
 
-if action == "BUY" and On_Trading == True and tradeable_FIAT > MinimumInvest:
+if action == "BUY" and Automated_Trading == True and tradeable_FIAT > MinimumInvest:
 
     # Place the order
     auth_client.place_market_order(product_id=currency, side='buy', funds=str(tradeable_FIAT))
@@ -180,12 +196,11 @@ if action == "BUY" and On_Trading == True and tradeable_FIAT > MinimumInvest:
     print(message)
 
     # Update funding level and Buy variable
-    funding = 0
-    #buy = False
     action = "HOLD"
 
+
 # Sell Conditions: latest derivative is - and previous is +
-if action == "SELL" :     ## buy == False and ######:
+if action == "SELL" and Automated_Trading == True and available_Crypto > 0:
 
     # Place the order
     auth_client.place_market_order(product_id=currency,side='sell',size=str(available_Crypto))
@@ -196,9 +211,8 @@ if action == "SELL" :     ## buy == False and ######:
     print(message)
 
     # Update funding level and Buy variable
-    #funding = int(possibleIncome_available)
-    #buy = True
     action = "HOLD"
+
 
 # Stop loss: sell everything and stop trading if your value is less than 80% of initial investment
 if (possibleIncome_available) <= 0.8 * initInvestment:

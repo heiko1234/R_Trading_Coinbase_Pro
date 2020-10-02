@@ -1,4 +1,4 @@
-#! /usr/bin/r   
+#! /usr/bin/Rscript  
 
 
 
@@ -10,26 +10,18 @@
 #libraries
 
 require(stringi)
-require(curl)
+#require(curl)
 require(xts)
 require(TTR)
 library(quantmod)
-library(httr)
-library(jsonlite)
+#library(httr)
+#library(jsonlite)
 require(MASS)
 
 
 #####
 # Nelson Rules
 
-existing_data<-read.csv(file = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro\\ETH_EUR_15.csv", sep = ",")
-#existing_data$open
-
-#
-# existing_data<-read.csv(file = "C:\\Users\\Heiko\\Raspberry PI Projekte\\How to Trading Bot\\Backup_Tradingscript_running\\Anpassung.Skript.Trading.23062019\\ETH_EUR_23062019.csv", sep = ";")
-# head(existing_data)
-
-dim(existing_data)
 
 
 sliding_chunker<-function(original, segment_len, slide_len){
@@ -514,6 +506,15 @@ save_data<-function(data, path, separator = "\\", name = NULL){
 }
 
 
+#########
+
+# Load data
+
+existing_data<-read.csv(file = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro\\ETH_EUR_15.csv", sep = ",")
+#existing_data$open
+
+
+#dim(existing_data)
 
 
 ed<- existing_data
@@ -522,15 +523,11 @@ ed <- reorder(data = ed, up_till_down = TRUE)
 
 ed<- ed[0:200,]
 
-
-#ed <-cbind(ed, evaluate_rules(ed$close))
-
-
-#head(ed)
-#tail(ed)
-
 TTR_data<-evaluate_TTR(data = ed)
 #head(TTR_data)
+
+
+# Graphical Analysis
 
 # plot(TTR_data$close, pch = 15, col = "blue")
 # plot(TTR_data$close ~ TTR_data$macdsignal)
@@ -555,9 +552,6 @@ TTR_data<-evaluate_TTR(data = ed)
 # plot(TTR_data$close ~ TTR_data$rule8)
 
 
-
-#dim(TTR_data_ordered)
-# dim(TTR_data)[2]
 # TTR_data_ordered <- TTR_data[order(TTR_data$close),5:dim(TTR_data)[2]]
 # head(TTR_data_ordered)
 
