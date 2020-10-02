@@ -35,7 +35,7 @@ def which(self):
 
 
 # Run on windows or Run on raspberry
-raspberry = True    #True or False
+raspberry = False    #True or False
 
 
 # Activates or deactivates the Trading Algorithm
@@ -47,10 +47,12 @@ Automatic_Trading = False   #or True
 # Windows PC
 if raspberry == False:
     pw = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/CoinbasePro_API.csv")
+    #print("windows")
 
 # raspberry: path = "home/pi/R/ETH.Data"
 if raspberry == True:
     pw = pd.read_csv("home/pi/R/CoinbasePro_API.csv")
+    #print("raspberry")
 
 
 ##### Trade/VIEW APIs Keys
