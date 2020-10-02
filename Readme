@@ -34,6 +34,8 @@ Python takes the analysis and has rules to make decisions for trading.
 Feel free to modify your trading rules in the python script.
 
 
+
+
 This is not a financial advisor! and you should only invest the money that you can loss if you like to use it!
 
 There is a high risk that you will lose money.
@@ -44,11 +46,16 @@ Please be aware that you can lose everything.
 
 
 
+#History and Background
+
+I had a trading bot based only on R but it stopped working while CoinbasePro was created (formerly GDAX).
+
+I found a nice python article and decided to take a new run to make it working again.
+
+If you are interested in the article for trading, you can find it here:
+https://medium.com/@ethanbond39/how-to-begin-algorithmic-trading-in-python-981edd51baa1
 
 
-
-
-
-
-
+Please keep in mind:
+This is not a financial advisor! and you should only invest the money that you can loss if you like to use it!
 
