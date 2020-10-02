@@ -1,6 +1,8 @@
 
 
 
+# exchange_name = "coinbasepro"
+
 # Literature for a Trading Bot
 
 # https://blog.shrimpy.io/blog/python-scripts-for-crypto-trading-bots
@@ -32,17 +34,23 @@ def which(self):
     return(indices)
 
 
-#exchange_name = "coinbasepro"
+# Run on windows or Run on raspberry
+raspberry = True    #True or False
+
+
+# Activates or deactivates the Trading Algorithm
+Automatic_Trading = False   #or True
+
 
 #Load Trading Passwords
 
 # Windows PC
-pw = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/CoinbasePro_API.csv")
+if raspberry == False:
+    pw = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/CoinbasePro_API.csv")
 
 # raspberry: path = "home/pi/R/ETH.Data"
-# pw = pd.read_csv("home/pi/R/CoinbasePro_API.csv")
-
-
+if raspberry == True:
+    pw = pd.read_csv("home/pi/R/CoinbasePro_API.csv")
 
 
 ##### Trade/VIEW APIs Keys
@@ -65,8 +73,7 @@ auth_client = cbpro.AuthenticatedClient(my_api_key,my_secret,my_passphrase)
 ################################################
 
 
-# Activates or deactivates the Trading Algorithm
-Automatic_Trading = False   #or True
+
 
 
 # Amount of Invests, Reserves and Logs
@@ -116,8 +123,8 @@ action = "HOLD"   #"BUY"  Or  "SELL"
 #################################################
 
 # try:
-# Wait for 1 second, to avoid API limit
-time.sleep(1)
+# Wait for 5 second, to avoid API limit
+time.sleep(5)
 
 # Get latest data and show to the user for reference
 newData = auth_client.get_product_ticker(product_id=currency)
@@ -133,26 +140,27 @@ currentPrice
 
 ##################################################
 ##################################################
-################### Strategy #####################
-### Strategy comes from Data Analysis with R #####
-##################################################
-##################################################
+# Historical Data Load
+
+if raspberry == False:
+
+    Historical_Data_15 = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/ETH_EUR_15_Trading.csv")
+
+    Historical_Data_60 = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/ETH_EUR_60_Trading.csv")
+
+    Trading_History = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv")
+
+#### Raspberry
+# raspberry: path = "home/pi/R/ETH.Data"
+
+if raspberry == True:
+    Historical_Data_15 = pd.read_csv("home/pi/R/ETH.Data/ETH_EUR_15_Trading.csv")
+
+    Historical_Data_60 = pd.read_csv("home/pi/R/ETH.Data/ETH_EUR_60_Trading.csv")
+
+    Trading_History = pd.read_csv("home/pi/R/ETH.Data/TradingLog.csv")
 
 
-
-Historical_Data_15 = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/ETH_EUR_15_Trading.csv")
-
-Historical_Data_60 = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/ETH_EUR_60_Trading.csv")
-
-Trading_History = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv")
-
-
-
-
-
-Historical_Data_15
-Historical_Data_60
-Trading_History
 
 
 ################################################################
@@ -222,6 +230,114 @@ STOP_LOSS_LIMIT = Trading_History.loc[Index_Last_BUY,"tradeable_value"]
 STOP_LOSS_LIMIT = 0.8 * STOP_LOSS_LIMIT
 
 
+##################################################
+
+################### Strategy #####################
+### Strategy comes from Data Analysis with R #####
+##################################################
+##################################################
+
+
+################## USED DATA #####################
+# Historical_Data_15
+# Historical_Data_60
+# Trading_History
+
+
+
+#BUY
+
+if Historical_Data_15.loc[0, "rsma50"]  < 0.995 and Historical_Data_15.loc[0, "slope25_5"]  > -0.02:
+    action = "BUY"
+
+if Historical_Data_15.loc[0, "rsma14"]  < 0.99 and Historical_Data_15.loc[0, "slope25_5"]  > -0.02:
+    action = "BUY"
+#
+if Historical_Data_15.loc[0, "rsma50"]  < 0.98:
+    action = "BUY"
+
+# 
+if Historical_Data_60.loc[0, "rsi14"] < 30:
+    action = "BUY"
+
+if Historical_Data_60.loc[0, "rsi25"]  < 30:
+    action = "BUY"
+
+if Historical_Data_60.loc[0, "rsi50"]  < 35:
+    action = "BUY"
+
+if Historical_Data_60.loc[0, "rsma50"]  < 0.98:
+    action = "BUY"
+
+else:
+    action = action
+
+
+
+##SELL
+if Historical_Data_15.loc[0, "rsma50"] > 1.02:
+    action = "SELL"
+
+if Historical_Data_15.loc[0, "rsi14"] > 70:
+    action = "SELL"
+
+if Historical_Data_15.loc[0, "rsi25"] > 65:
+    action = "SELL"
+
+if Historical_Data_15.loc[0, "rsi50"] > 65:
+    action = "SELL"
+
+if Historical_Data_60.loc[0, "rsi14"]  > 60:
+    action = "SELL"
+
+if Historical_Data_60.loc[0, "rsi50"]  > 50:
+    action = "SELL"
+
+if Historical_Data_60.loc[0, "rsma50"]  > 1.025:
+    action = "SELL"
+
+
+#####
+# GET Sure SELL will benefit minimum 1 % Benefit
+Index_Last_BUY = which(Trading_History.loc[:,"order"] == "BUY")[0]
+Last_BUY_price = Trading_History.loc[Index_Last_BUY,"current_price"]
+
+
+if action == "SELL" and currentPrice >= (Last_BUY_price * 1.01):
+    action = "SELL"
+
+else:
+    action = "HOLD"
+
+
+#### Date and time compairison, analysis date in timeframe of - 17 or 62 Minutes
+
+#Now
+now16 = dt.datetime.now()- dt.timedelta(minutes= 17)
+actual_time16 = now16.strftime("%d.%m.%Y %H:%M:%S")
+actual_time16
+
+now61 = dt.datetime.now()- dt.timedelta(minutes= 62)
+actual_time61 = now61.strftime("%d.%m.%Y %H:%M:%S")
+actual_time61
+
+last_HD_15 = Historical_Data_15.loc[0,"time"]
+last_HD_15 = dt.datetime.strptime(last_HD_15,"%Y-%m-%d %H:%M:%S")
+last_HD_15 = dt.datetime.strftime(last_HD_15,"%d.%m.%Y %H:%M:%S")
+last_HD_15
+
+last_HD_60 = Historical_Data_60.loc[0, "time"]
+last_HD_60 = dt.datetime.strptime(last_HD_60,"%Y-%m-%d %H:%M:%S")
+last_HD_60 = dt.datetime.strftime(last_HD_60,"%d.%m.%Y %H:%M:%S" )
+last_HD_60
+
+
+if actual_time16 < last_HD_15 and actual_time61 < last_HD_60:
+    action = action
+else:
+    action = "HOLD"
+
+
 ##################################################################
 ###Placing Orders###
 ###Check Conditions for either BUY or SELL Orders ###
@@ -248,8 +364,12 @@ if action == "BUY" and Automated_Trading == True and tradeable_FIAT > MinimumInv
     key_infos = pd.DataFrame(data = key_infos, columns = ["date", "order", "tradeable_fiat", "tradeable_crypto", "owned_crypto", "owned_fiat", "current_price", "tradeable_value", "total_value"])
 
     TH = key_infos.append(Trading_History)
-    TH.to_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv", sep =",")
 
+    if raspberry == False:
+        TH.to_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv", sep =",")
+
+    if raspberry == True:
+        TH.to_csv("home/pi/R/ETH.Data/TradingLog.csv", sep =",")
 
 
 # Sell Conditions: latest derivative is - and previous is +
@@ -273,7 +393,12 @@ if action == "SELL" and Automated_Trading == True and available_Crypto > 0:
     key_infos = pd.DataFrame(data = key_infos, columns = ["date", "order", "tradeable_fiat", "tradeable_crypto", "owned_crypto", "owned_fiat", "current_price", "tradeable_value", "total_value"])
 
     TH = key_infos.append(Trading_History)
-    TH.to_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv", sep =",")
+
+    if raspberry == False:
+        TH.to_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv", sep =",")
+
+    if raspberry == True:
+        TH.to_csv("home/pi/R/ETH.Data/TradingLog.csv", sep =",")
 
 
 # Stop loss: sell everything and stop trading if your value is less than 80% of last buy investment
@@ -291,7 +416,11 @@ if (possibleIncome_available) <= STOP_LOSS_LIMIT:
         key_infos = pd.DataFrame(data = key_infos, columns = ["date", "order", "tradeable_fiat", "tradeable_crypto", "owned_crypto", "owned_fiat", "current_price", "tradeable_value", "total_value"])
 
         TH = key_infos.append(Trading_History)
-        TH.to_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv", sep =",")
+        if raspberry == False:
+            TH.to_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv", sep =",")
+
+        if raspberry == True:
+            TH.to_csv("home/pi/R/ETH.Data/TradingLog.csv", sep =",")
 
 
 

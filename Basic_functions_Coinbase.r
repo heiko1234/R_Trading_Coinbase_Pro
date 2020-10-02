@@ -14,6 +14,9 @@ require(curl)
 library(httr)
 library(jsonlite)
 
+# Check if raspberry  or  Windows PC
+raspberry = FALSE   # TRUE  or FALSE
+
 
 # Utility Function To Parse Message From Coinbase Pro API For Public Functions
 
@@ -134,7 +137,8 @@ save_data<-function(data, path, separator = "\\", name = NULL){
     if (length(name) == 0){
         name = deparse(substitute(data))
     }
-    else{name = name}
+    if (length(name) != 0){
+        name = name}
     #
     CSV <- list.files(path = path, pattern = paste0(name, ".csv") )
     CSV
@@ -148,9 +152,9 @@ save_data<-function(data, path, separator = "\\", name = NULL){
     }
     # file does exist in folder it will be modified if rows differ
     if (length(CSV) != 0){
-        existing_data <- read.csv(file = (paste0(path, separator, name,".csv")), )
+        existing_data <- read.csv(file = your_path, sep = ",")
         first.row = existing_data[1,]
-        first.row_time = as.POSIXlt(first.row$time)
+        first.row_time = as.POSIXlt(first.row$time, format = "%Y-%m-%d %H:%M:%S")
         max_index = max(which(data$time >= first.row_time))
         max_index
         if (max_index > 1){
@@ -162,7 +166,7 @@ save_data<-function(data, path, separator = "\\", name = NULL){
         #
         #read, order, remove duplicated and save file again
         if (length(data[,1]) >= 2){
-            existing_data<-read.csv(file =  paste0(path, separator, name,".csv"), )
+            existing_data<-read.csv(file =  your_path, sep = ",")
             existing_data <- rbind(data, existing_data)
             #head(existing_data)
             existing_data <- existing_data[order(existing_data$time, decreasing = TRUE),]
@@ -177,42 +181,52 @@ save_data<-function(data, path, separator = "\\", name = NULL){
 
 # Daten Abruf und aggregation
 # 1 Min Data
-ETH_EUR_1 <- public_candles(product_id = "ETH-EUR", granularity = 60)
+#ETH_EUR_1 <- public_candles(product_id = "ETH-EUR", granularity = 60)
+#head(ETH_EUR_1)
 
 # 5 Min aggregated Data
-ETH_EUR_5 <- aggregate_public_candles(data = ETH_EUR_1, aggregation = 5)
+#ETH_EUR_5 <- aggregate_public_candles(data = ETH_EUR_1, aggregation = 5)
+#head(ETH_EUR_5)
 
 #15 Min aggregated Data
 ETH_EUR_15 <- public_candles(product_id = "ETH-EUR", granularity = 900)
+#head(ETH_EUR_15)
 
 #60 Min aggregated Data
 ETH_EUR_60 <- public_candles(product_id = "ETH-EUR", granularity = 3600)
+#head(ETH_EUR_60)
 
 
 
-#head(ETH_EUR_1)
+
+# save_data(data = ETH_EUR_1 , separator = "\\", path = path)
+# save_data(data = ETH_EUR_5 , separator = "\\", path = path)
 
 
 
-### Test save 1 und 5 Min Data
-path = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro"
-#path = "home/pi/R/ETH.Data"
+if (raspberry = FALSE){
+  path = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro"
+  separator = "\\"
+}
+
+if (raspberry = TRUE){
+  path = "home/pi/R/ETH.Data"
+  separator = "/"
+}
+
+save_data(data = ETH_EUR_15 , separator = separator, path = path)
+
+save_data(data = ETH_EUR_60 , separator = separator, path = path)
 
 
-save_data(data = ETH_EUR_1 , separator = "\\", path = path)
-
-save_data(data = ETH_EUR_5 , separator = "\\", path = path)
-
-save_data(data = ETH_EUR_15 , separator = "\\", path = path)
-
-save_data(data = ETH_EUR_60 , separator = "\\", path = path)
 
 
-# head(ETH_EUR_1)
-# existing_data<-read.csv(file = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro\\ETH_EUR_1.csv", sep = ",")
 
-# head(existing_data)
-# existing_data[1:10,]
+
+
+
+
+
 
 
 

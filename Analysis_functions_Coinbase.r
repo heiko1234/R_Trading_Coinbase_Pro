@@ -19,9 +19,14 @@ library(quantmod)
 require(MASS)
 
 
+
+# Check if raspberry  or  Windows PC
+raspberry = FALSE   # TRUE  or FALSE
+
+
+
 #####
 # Nelson Rules
-
 
 
 sliding_chunker<-function(original, segment_len, slide_len){
@@ -85,7 +90,8 @@ rule1<-function(original, mean = NULL, sigma = NULL){
             }
         }
     return(results)
-    }
+}
+
 
 
 ##########
@@ -363,7 +369,7 @@ evaluate_rules<-function(original, mean = NULL, sigma = NULL, filler = FALSE){
 
 
 reorder<-function(data, up_till_down = TRUE){
-    data$time <- as.POSIXct(data$time, format = "%d.%m.%Y %H:%M")
+    data$time <- as.POSIXct(data$time, format = "%Y-%m-%d %H:%M:%S")
     #
     if (up_till_down == TRUE){
         data<-data[order(data$time, decreasing = TRUE),] }
@@ -467,7 +473,8 @@ save_data<-function(data, path, separator = "\\", name = NULL){
     if (length(name) == 0){
         name = deparse(substitute(data))
     }
-    else{name = name}
+    if (length(name) != 0){
+        name = name}
     #
     CSV <- list.files(path = path, pattern = paste0(name, ".csv") )
     CSV
@@ -481,9 +488,9 @@ save_data<-function(data, path, separator = "\\", name = NULL){
     }
     # file does exist in folder it will be modified if rows differ
     if (length(CSV) != 0){
-        existing_data <- read.csv(file = (paste0(path, separator, name,".csv")), )
+        existing_data <- read.csv(file = your_path, sep = ",")
         first.row = existing_data[1,]
-        first.row_time = as.POSIXlt(first.row$time)
+        first.row_time = as.POSIXlt(first.row$time, format = "%Y-%m-%d %H:%M:%S")
         max_index = max(which(data$time >= first.row_time))
         max_index
         if (max_index > 1){
@@ -495,7 +502,7 @@ save_data<-function(data, path, separator = "\\", name = NULL){
         #
         #read, order, remove duplicated and save file again
         if (length(data[,1]) >= 2){
-            existing_data<-read.csv(file =  paste0(path, separator, name,".csv"), )
+            existing_data<-read.csv(file =  your_path, sep = ",")
             existing_data <- rbind(data, existing_data)
             #head(existing_data)
             existing_data <- existing_data[order(existing_data$time, decreasing = TRUE),]
@@ -510,21 +517,42 @@ save_data<-function(data, path, separator = "\\", name = NULL){
 
 # Load data
 
-existing_data<-read.csv(file = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro\\ETH_EUR_15.csv", sep = ",")
-#existing_data$open
+if (raspberry == FALSE){
+
+  existing_data1<-read.csv(file = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro\\ETH_EUR_15.csv", sep = ",")
+
+  existing_data2<-read.csv(file = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro\\ETH_EUR_60.csv", sep = ",")
+}
+
+if (raspberry == TRUE){
+
+  existing_data1<-read.csv(file = "home/pi/R/ETH.Data/ETH_EUR_15.csv", sep = ",")
+
+  existing_data2<-read.csv(file = "home/pi/R/ETH.Data/ETH_EUR_60.csv", sep = ",")
+} 
+
 
 
 #dim(existing_data)
 
 
-ed<- existing_data
+ed1<- existing_data1
+ed1 <- reorder(data = ed1, up_till_down = TRUE)
+#head(ed1)
 
-ed <- reorder(data = ed, up_till_down = TRUE)
+ed1<- ed1[0:300,]
 
-ed<- ed[0:200,]
+TTR_data1<-evaluate_TTR(data = ed1)
 
-TTR_data<-evaluate_TTR(data = ed)
-#head(TTR_data)
+
+#
+ed2<- existing_data2
+ed2 <- reorder(data = ed2, up_till_down = TRUE)
+#head(ed2)
+
+ed2<- ed2[0:300,]
+
+TTR_data2<-evaluate_TTR(data = ed2)
 
 
 # Graphical Analysis
@@ -535,10 +563,10 @@ TTR_data<-evaluate_TTR(data = ed)
 # plot(TTR_data$close ~ TTR_data$rsi25)
 # plot(TTR_data$close ~ TTR_data$rsi50)
 # plot(TTR_data$close ~ TTR_data$di)
-# #plot(TTR_data$close ~ TTR_data$range)
+# plot(TTR_data$close ~ TTR_data$range)
 # plot(TTR_data$close ~ TTR_data$cmo)
-# #plot(TTR_data$close ~ TTR_data$sma50)
-# #plot(TTR_data$close ~ TTR_data$sma14)
+# # plot(TTR_data$close ~ TTR_data$sma50)
+# # plot(TTR_data$close ~ TTR_data$sma14)
 # plot(TTR_data$close ~ TTR_data$rsma50)
 # plot(TTR_data$close ~ TTR_data$rsma14)
 # plot(TTR_data$close ~ TTR_data$cema)
@@ -549,21 +577,28 @@ TTR_data<-evaluate_TTR(data = ed)
 # plot(TTR_data$close ~ TTR_data$slope25_10)
 # plot(TTR_data$close ~ TTR_data$slope25_5)
 # plot(TTR_data$close ~ TTR_data$slope10)
-# plot(TTR_data$close ~ TTR_data$rule8)
+# #plot(TTR_data$close ~ TTR_data$rule8)
 
 
-# TTR_data_ordered <- TTR_data[order(TTR_data$close),5:dim(TTR_data)[2]]
-# head(TTR_data_ordered)
-
-# parcoord(TTR_data_ordered[], col = rainbow(length(TTR_data_ordered$close)))
+#head(TTR_data)
 
 
 ### Test save 1 und 5 Min Data
 
-path = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro"
+if (raspberry == FALSE){
+  path = "C:\\Users\\Heiko\\Visual.Studio\\R_Trading_Coinbase_Pro"
 
-save_data(data = TTR_data, path = path, separator = "\\", name = "ETH_EUR_15_Trading")
+  save_data(data = TTR_data1, path = path, separator = "\\", name = "ETH_EUR_15_Trading")
+  save_data(data = TTR_data2, path = path, separator = "\\", name = "ETH_EUR_60_Trading")
+}
 
+
+if (raspberry == TRUE){
+  path = "home/pi/R/ETH.Data"
+
+  save_data(data = TTR_data1, path = path, separator = "/", name = "ETH_EUR_15_Trading")
+  save_data(data = TTR_data2, path = path, separator = "/", name = "ETH_EUR_60_Trading")
+}
 
 
 
