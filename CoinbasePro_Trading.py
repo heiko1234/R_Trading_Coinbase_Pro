@@ -44,6 +44,11 @@ Automated_Trading = True    #False   #or True
 # No Trading, only for Testing, Test run when TRUE
 Test_functions = True     #False or True
 
+# Force a BUY or Sell
+Force = False
+Kind_Force = "BUY"
+
+
 #Load Trading Passwords
 
 # Windows PC
@@ -422,6 +427,13 @@ if Test_functions == True:
     print("###############")
     action = "BUY"
     print(action)
+
+if Force == True:
+    action = Kind_Force
+    if Kind_Force == "BUY":
+        msg = "Forced BUY"
+    if Kind_Force == "SELL":
+        msg = "Forced SELL"
 
 ##################################################################
 ###Placing Orders###
