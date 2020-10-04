@@ -3,8 +3,8 @@
 
 
 
-
-
+#Literature
+# https://de.tradingview.com/scripts/
 
 
 #libraries
@@ -21,7 +21,7 @@ require(MASS)
 
 
 # Check if raspberry  or  Windows PC
-raspberry = FALSE   # TRUE  or FALSE
+raspberry = TRUE   # TRUE  or FALSE
 
 
 
@@ -430,6 +430,15 @@ evaluate_TTR<-function(data){
     colnames(kst)[2]<-"kstsignal"
     range <- (abs(reed$close-reed$open)/reed$close*100)
     #
+    ##### NEU zu testen
+    roc <- TTR::ROC(reed$close)
+    momentum <- TTR::momentum(reed$close)
+    snr14 <- TTR::SNR(reed[,2:4], n = 14)
+    snr25 <- TTR::SNR(reed[,2:4], n = 25)
+    snr50 <- TTR::SNR(reed[,2:4], n = 50)
+    zigzag <- TTR::ZigZag(reed[,2:4], change = 10, percent = TRUE )
+
+
     slope10<-slope(data$close, number = 10)
     slope25<-slope(data$close, number = 25)
     slope25_10<-slope(slope25, number = 10)
@@ -453,10 +462,41 @@ evaluate_TTR<-function(data){
     reed<-cbind(reed, tdi)
     reed<-cbind(reed, cmo)
     reed<-cbind(reed, kst)
+    reed<-cbind(reed, roc)
+    reed<-cbind(reed, momentum)
+    reed<-cbind(reed, snr14)
+    reed<-cbind(reed, snr25)
+    reed<-cbind(reed, snr50)
+    reed<-cbind(reed, zigzag)
 
 
     rereed<-reorder(reed, TRUE)
+
+    slopecema10<-slope(rereed$cema, number = 10)
+    s4s10cema10<-slope(slopecema10, number = 4)
+    slopecema25<-slope(rereed$cema, number = 25)
+    s4s10cema25<-slope(slopecema25, number = 4)
+    slopersi14<-slope(rereed$rsi14, number = 10)
+    s4s10rsi14<-slope(slopersi14, number = 4)
+    slopersi25<-slope(rereed$rsi25, number = 10)
+    s4s10rsi25<-slope(slopersi25, number = 4)
+    slopersma14<-slope(rereed$rsma14, number = 10)
+    s4s10rsma14<-slope(slopersma14, number = 4)
+    slopersma50<-slope(rereed$rsma50, number = 10)
+    s4s10rsma50<-slope(slopersma14, number = 4)
     
+    rereed<-cbind(rereed, slopecema10)
+    rereed<-cbind(rereed, s4s10cema10)
+    rereed<-cbind(rereed, slopecema25)
+    rereed<-cbind(rereed, s4s10cema25)
+    rereed<-cbind(rereed, slopersi14)
+    rereed<-cbind(rereed, s4s10rsi14)
+    rereed<-cbind(rereed, slopersi25)
+    rereed<-cbind(rereed, s4s10rsi25)
+    rereed<-cbind(rereed, slopersma14)
+    rereed<-cbind(rereed, s4s10rsma14)
+    rereed<-cbind(rereed, slopersma50)
+    rereed<-cbind(rereed, s4s10rsma50)
     rereed<-cbind(rereed, slope10)
     rereed<-cbind(rereed, slope25)
     rereed<-cbind(rereed, slope25_10)
@@ -548,12 +588,15 @@ TTR_data1<-evaluate_TTR(data = ed1)
 #
 ed2<- existing_data2
 ed2 <- reorder(data = ed2, up_till_down = TRUE)
-#head(ed2)
+head(ed2)
+#reed<- ed2
 
 ed2<- ed2[0:300,]
 
 TTR_data2<-evaluate_TTR(data = ed2)
 
+#names(TTR_data2)
+#TTR_data2$slopecema10
 
 # Graphical Analysis
 
@@ -579,6 +622,10 @@ TTR_data2<-evaluate_TTR(data = ed2)
 # plot(TTR_data$close ~ TTR_data$slope10)
 # #plot(TTR_data$close ~ TTR_data$rule8)
 
+# plot(TTR_data2$close ~TTR_data2$roc)
+# plot(TTR_data2$close ~ TTR_data2$snr14)
+
+# plot(TTR_data2$close ~ TTR_data2$zigzag)
 
 #head(TTR_data)
 
