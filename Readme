@@ -27,11 +27,16 @@ The python script uses the .csv file for storing the access data (Here is only a
 
 Also the python script should be run with a crontab on a raspberry.
 
-R makes the analysis autonomus.
+R makes the analysis autonomusly.
 
 Python takes the analysis and has rules to make decisions for trading. 
 
-Feel free to modify your trading rules in the python script.
+
+You only need to run these scripts with "sudo crontab -e"  on a scale that is sufficient for you on your raspberry pi. I run them every 5 Minutes on my raspberry pi 3B+.
+
+
+
+Feel free to modify your trading rules in the python script to your belongings.
 
 
 If you like this type of projects and want to contribute, feel free to do so!
