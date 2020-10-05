@@ -42,7 +42,7 @@ raspberry = True    #True or False
 Automated_Trading = True    #False   #or True
 
 # No Trading, only for Testing, Test run when TRUE
-Test_functions = True     #False or True
+Test_functions = False     #False or True
 
 # Force a BUY or Sell
 Force = False
@@ -88,7 +88,7 @@ auth_client = cbpro.AuthenticatedClient(my_api_key,my_secret,my_passphrase)
 # Amount of Invests, Reserves and Logs
 MinimumInvest = 20.00  #EUR
 MinimumInvestLog = 20.00   #EUR
-MinimumCryptoLog = 0.1   #ETH
+MinimumCryptoLog = 0.01   #ETH
 
 
 
@@ -238,7 +238,7 @@ print(key_infos)
 # Trading_History
 Index_Last_BUY = which(Trading_History.loc[:,"order"] == "BUY")[0]
 STOP_LOSS_LIMIT = Trading_History.loc[Index_Last_BUY,"tradeable_value"]
-STOP_LOSS_LIMIT = 0.8 * STOP_LOSS_LIMIT
+STOP_LOSS_LIMIT = round(0.8 * STOP_LOSS_LIMIT, 2)
 STOP_LOSS_LIMIT
 
 ##################################################
@@ -342,9 +342,9 @@ if Historical_Data_60.loc[0, "rsi14"]  > 60:
     msg = "SELL 60rsi14 > 60"
     print(msg)
 
-if Historical_Data_60.loc[0, "rsi50"]  > 50:
+if Historical_Data_60.loc[0, "rsi50"]  > 58:
     action = "SELL"
-    msg = "SELL 60rsi50 > 50"
+    msg = "SELL 60rsi50 > 58"
     print(msg)
 
 if Historical_Data_60.loc[0, "rsma50"]  > 1.025:
@@ -361,7 +361,15 @@ print(msg)
 # GET Sure SELL will benefit minimum 1 % Benefit
 Index_Last_BUY = which(Trading_History.loc[:,"order"] == "BUY")[0]
 Last_BUY_price = Trading_History.loc[Index_Last_BUY,"current_price"]
-Limit_SELL_price = Last_BUY_price * 1.01
+Limit_SELL_price = round(Last_BUY_price * 1.01, 2)
+
+# for 01 and 15 of each month, a higher minimum sell price of 2.5 or 3 % 
+if Trading_History.loc[Index_Last_BUY, "date"][0:2] == "02":
+    Limit_SELL_price = round(Last_BUY_price * 1.025, 2)
+
+if Trading_History.loc[Index_Last_BUY, "date"][0:2] == "15":
+    Limit_SELL_price = round(Last_BUY_price * 1.03, 2)
+
 
 if action == "SELL" :
     if currentPrice > Limit_SELL_price:
@@ -414,19 +422,21 @@ else:
 print("action after Date compairison")
 print(action)
 
+
+print(actual_time16)
+print(last_HD_15)
+print(actual_time16 < last_HD_15)
+print("###############")
+print(actual_time61)
+print(last_HD_60)
+print(actual_time61 < last_HD_60)
+print("###############")
+
+
 if Test_functions == True:
     print("Test of functions")
-    print(action)
-    print(actual_time16)
-    print(last_HD_15)
-    print(actual_time16 < last_HD_15)
-    print("###############")
-    print(actual_time61)
-    print(last_HD_60)
-    print(actual_time61 < last_HD_60)
-    print("###############")
     action = "BUY"
-    print(action)
+    print(action)    
 
 if Force == True:
     action = Kind_Force
@@ -545,8 +555,8 @@ if (possibleIncome_available) <= STOP_LOSS_LIMIT:
 
 
 
-# Wait for 10 seconds before repeating
-time.sleep(10)
+# Wait for 5 seconds before repeating
+time.sleep(5)
 
 
 
