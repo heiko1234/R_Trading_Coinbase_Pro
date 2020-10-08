@@ -139,7 +139,8 @@ time.sleep(5)
 newData = auth_client.get_product_ticker(product_id=currency)
 print(newData)
 currentPrice=newData['price']
-currentPrice
+currentPrice = round(float(currentPrice), 2)
+print(currentPrice)
 
 # except:
 #     # In case something went wrong with cbpro
@@ -381,6 +382,11 @@ if action == "SELL" :
 
 print("Indicator actions with Limit price")
 print(action)
+print("current Price:")
+print(current_price)
+print("SELL Limit:")
+print(Limit_SELL_price)
+print("#####################")
 
 if Test_functions == True:
     print("Test of BUY and SELL functions")
