@@ -90,6 +90,8 @@ MinimumInvest = 20.00  #EUR
 MinimumInvestLog = 20.00   #EUR
 MinimumCryptoLog = 0.01   #ETH
 MinimumBenefit = 2.5 # Procent %
+ExtraBenefit = 2.0 # Procent % on first and 15. of each month
+ExtraBenefitCondition = 0.0  #Procent % on special Conditions
 
 
 
@@ -259,44 +261,6 @@ STOP_LOSS_LIMIT
 msg = "Nothing to report"
 
 
-##SELL
-if Historical_Data_15.loc[0, "rsma50"] > 1.02:
-    action = "SELL"
-    msg = "SELL rsma50 > 1.02"
-    print(msg)
-
-if Historical_Data_15.loc[0, "rsi14"] > 70:
-    action = "SELL"
-    msg = "SELL rsi14 > 70"
-    print(msg)
-
-if Historical_Data_15.loc[0, "rsi25"] > 65:
-    action = "SELL"
-    msg = "SELL rsi25 > 65"
-    print(msg)
-
-if Historical_Data_15.loc[0, "rsi50"] > 65:
-    action = "SELL"
-    msg = "SELL rsi50 > 65"
-    print(msg)
-
-if Historical_Data_60.loc[0, "rsi14"]  > 60:
-    action = "SELL"
-    msg = "SELL 60rsi14 > 60"
-    print(msg)
-
-if Historical_Data_60.loc[0, "rsi50"]  > 58:
-    action = "SELL"
-    msg = "SELL 60rsi50 > 58"
-    print(msg)
-
-if Historical_Data_60.loc[0, "rsma50"]  > 1.025:
-    action = "SELL"
-    msg = "SELL 60rsma50 > 1.025"
-    print(msg)
-
-
-
 #BUY
 
 if Historical_Data_15.loc[0, "rsma50"]  < 0.995 and Historical_Data_15.loc[0, "slope25_5"]  > -0.02:
@@ -356,6 +320,44 @@ if Historical_Data_60.loc[0, "rsma50"]  < 0.98:
 
 
 
+##SELL
+if Historical_Data_15.loc[0, "rsma50"] > 1.02:
+    action = "SELL"
+    msg = "SELL rsma50 > 1.02"
+    print(msg)
+
+if Historical_Data_15.loc[0, "rsi14"] > 70:
+    action = "SELL"
+    msg = "SELL rsi14 > 70"
+    print(msg)
+
+if Historical_Data_15.loc[0, "rsi25"] > 65:
+    action = "SELL"
+    msg = "SELL rsi25 > 65"
+    print(msg)
+
+if Historical_Data_15.loc[0, "rsi50"] > 65:
+    action = "SELL"
+    msg = "SELL rsi50 > 65"
+    print(msg)
+
+if Historical_Data_60.loc[0, "rsi14"]  > 60:
+    action = "SELL"
+    msg = "SELL 60rsi14 > 60"
+    print(msg)
+
+if Historical_Data_60.loc[0, "rsi50"]  > 58:
+    action = "SELL"
+    msg = "SELL 60rsi50 > 58"
+    print(msg)
+
+if Historical_Data_60.loc[0, "rsma50"]  > 1.025:
+    action = "SELL"
+    msg = "SELL 60rsma50 > 1.025"
+    print(msg)
+
+
+
 #before Historical Data review.
 print(action)
 print(msg)
@@ -366,14 +368,14 @@ Minimum_Benefit = 1 + (MinimumBenefit / 100)
 # GET Sure SELL will benefit minimum 1 % Benefit
 Index_Last_BUY = which(Trading_History.loc[:,"order"] == "BUY")[0]
 Last_BUY_price = Trading_History.loc[Index_Last_BUY,"current_price"]
-Limit_SELL_price = round(Last_BUY_price * Minimum_Benefit, 2)
+Limit_SELL_price = round(Last_BUY_price * (Minimum_Benefit + (ExtraBenefitCondition/100)), 2)
 
-# for 01 and 15 of each month, a higher minimum sell price of 2.5 or 3 % 
+# for 01 and 15 of each month, a higher minimum sell price of ExtraBenefit
 if Trading_History.loc[Index_Last_BUY, "date"][0:2] == "02":
-    Limit_SELL_price = round(Last_BUY_price * Minimum_Benefit * 1.03, 2)
+    Limit_SELL_price = round(Last_BUY_price * (Minimum_Benefit + (ExtraBenefit/100) +(ExtraBenefitCondition/100) ), 2)
 
 if Trading_History.loc[Index_Last_BUY, "date"][0:2] == "15":
-    Limit_SELL_price = round(Last_BUY_price * Minimum_Benefit * 1.03, 2)
+    Limit_SELL_price = round(Last_BUY_price * (Minimum_Benefit + (ExtraBenefit/100) + (ExtraBenefitCondition/100) ), 2)
 
 
 if action == "SELL" :
