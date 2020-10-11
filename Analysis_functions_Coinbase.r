@@ -412,7 +412,7 @@ evaluate_TTR<-function(data){
     reed <- reorder(data = data, up_till_down = FALSE)
     adx <- TTR::ADX(reed[,c("high", "low", "close")])
     ema<- TTR::EMA(reed$open, n = 20)
-    cema <- (data$close - ema)/ema
+    cema <- (reed$close - ema)/ema ##reed$close nicht #data$close
     macd <- TTR::MACD(reed$close)
     colnames(macd)[2]<-"macdsignal"
     rsi14 <- TTR::RSI(reed[,"close"], n = 14) 

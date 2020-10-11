@@ -89,9 +89,9 @@ auth_client = cbpro.AuthenticatedClient(my_api_key,my_secret,my_passphrase)
 MinimumInvest = 20.00  #EUR
 MinimumInvestLog = 20.00   #EUR
 MinimumCryptoLog = 0.01   #ETH
-MinimumBenefit = 2.5 # Procent %
-ExtraBenefit = 2.0 # Procent % on first and 15. of each month
-ExtraBenefitCondition = 0.0  #Procent % on special Conditions
+MinimumBenefit = 1.8 # Procent %
+ExtraBenefit = 2.0 # Procent % on 1. and 15. of each month, 2% more, total 4.5 %
+ExtraBenefitCondition = 0.0  #Procent % on special Conditions, when special Condition reached
 
 
 
@@ -261,6 +261,43 @@ STOP_LOSS_LIMIT
 msg = "Nothing to report"
 
 
+##SELL
+if Historical_Data_15.loc[0, "rsma50"] > 1.02:
+    action = "SELL"
+    msg = "SELL rsma50 > 1.02"
+    print(msg)
+
+if Historical_Data_15.loc[0, "rsi14"] > 70:
+    action = "SELL"
+    msg = "SELL rsi14 > 70"
+    print(msg)
+
+if Historical_Data_15.loc[0, "rsi25"] > 65:
+    action = "SELL"
+    msg = "SELL rsi25 > 65"
+    print(msg)
+
+if Historical_Data_15.loc[0, "rsi50"] > 65:
+    action = "SELL"
+    msg = "SELL rsi50 > 65"
+    print(msg)
+
+if Historical_Data_60.loc[0, "rsi14"]  > 60:
+    action = "SELL"
+    msg = "SELL 60rsi14 > 60"
+    print(msg)
+
+if Historical_Data_60.loc[0, "rsi50"]  > 58:
+    action = "SELL"
+    msg = "SELL 60rsi50 > 58"
+    print(msg)
+
+if Historical_Data_60.loc[0, "rsma50"]  > 1.025:
+    action = "SELL"
+    msg = "SELL 60rsma50 > 1.025"
+    print(msg)
+
+
 #BUY
 
 if Historical_Data_15.loc[0, "rsma50"]  < 0.995 and Historical_Data_15.loc[0, "slope25_5"]  > -0.02:
@@ -320,44 +357,6 @@ if Historical_Data_60.loc[0, "rsma50"]  < 0.98:
 
 
 
-##SELL
-if Historical_Data_15.loc[0, "rsma50"] > 1.02:
-    action = "SELL"
-    msg = "SELL rsma50 > 1.02"
-    print(msg)
-
-if Historical_Data_15.loc[0, "rsi14"] > 70:
-    action = "SELL"
-    msg = "SELL rsi14 > 70"
-    print(msg)
-
-if Historical_Data_15.loc[0, "rsi25"] > 65:
-    action = "SELL"
-    msg = "SELL rsi25 > 65"
-    print(msg)
-
-if Historical_Data_15.loc[0, "rsi50"] > 65:
-    action = "SELL"
-    msg = "SELL rsi50 > 65"
-    print(msg)
-
-if Historical_Data_60.loc[0, "rsi14"]  > 60:
-    action = "SELL"
-    msg = "SELL 60rsi14 > 60"
-    print(msg)
-
-if Historical_Data_60.loc[0, "rsi50"]  > 58:
-    action = "SELL"
-    msg = "SELL 60rsi50 > 58"
-    print(msg)
-
-if Historical_Data_60.loc[0, "rsma50"]  > 1.025:
-    action = "SELL"
-    msg = "SELL 60rsma50 > 1.025"
-    print(msg)
-
-
-
 #before Historical Data review.
 print(action)
 print(msg)
@@ -386,6 +385,7 @@ if action == "SELL" :
         print("SELL Limit not reached!")
         action = "HOLD"
 
+
 print("Indicator actions with Limit price")
 print(action)
 print("current Price:")
@@ -393,6 +393,7 @@ print(currentPrice)
 print("SELL Limit:")
 print(Limit_SELL_price)
 print("#####################")
+
 
 if Test_functions == True:
     print("Test of BUY and SELL functions")
