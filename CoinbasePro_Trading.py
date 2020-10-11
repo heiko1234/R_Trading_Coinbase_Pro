@@ -308,7 +308,7 @@ if Historical_Data_15.loc[0, "rsma50"]  < 0.995 and Historical_Data_15.loc[0, "s
 
 if Historical_Data_15.loc[0, "rsma14"]  < 0.99 and Historical_Data_15.loc[0, "slope25_5"]  > -0.02:
     action = "BUY"
-    print(istorical_Data_15.loc[0, "rsma14"])
+    print(Historical_Data_15.loc[0, "rsma14"])
     msg = "BUY RSMA14 < 0.99"
     print(msg)
 #
