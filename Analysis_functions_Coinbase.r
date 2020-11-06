@@ -412,7 +412,7 @@ evaluate_TTR<-function(data){
     reed <- reorder(data = data, up_till_down = FALSE)
     adx <- TTR::ADX(reed[,c("high", "low", "close")])
     ema<- TTR::EMA(reed$open, n = 20)
-    cema <- (reed$close - ema)/ema *100 ##reed$close nicht #data$close
+    cema <- (data$close - ema)/ema *100    #sieht falsch aus
     macd <- TTR::MACD(reed$close)
     colnames(macd)[2]<-"macdsignal"
     rsi14 <- TTR::RSI(reed[,"close"], n = 14) 
@@ -472,6 +472,8 @@ evaluate_TTR<-function(data){
 
     rereed<-reorder(reed, TRUE)
 
+    #cema <- (rereed$close - rereed$ema)/rereed$ema *100 ##reed$close nicht #data$close
+
     slopecema10<-slope(rereed$cema, number = 10)
     s4s10cema10<-slope(slopecema10, number = 4)
     slopecema25<-slope(rereed$cema, number = 25)
@@ -485,6 +487,7 @@ evaluate_TTR<-function(data){
     slopersma50<-slope(rereed$rsma50, number = 10)
     s4s10rsma50<-slope(slopersma14, number = 4)
     
+    #rereed<-cbind(rereed, cema)
     rereed<-cbind(rereed, slopecema10)
     rereed<-cbind(rereed, s4s10cema10)
     rereed<-cbind(rereed, slopecema25)
