@@ -89,8 +89,8 @@ auth_client = cbpro.AuthenticatedClient(my_api_key,my_secret,my_passphrase)
 MinimumInvest = 20.00  #EUR
 MinimumInvestLog = 20.00   #EUR
 MinimumCryptoLog = 0.01   #ETH
-MinimumBenefit = 1.8  # Procent %
-ExtraBenefit = 2.1  # Procent % on 1. and 15. of each month, 2% more, total 4.5 %
+MinimumBenefit = 1.5  # Procent %
+ExtraBenefit = 2.2  # Procent % on 1. and 15. of each month, 2% more, total 4.5 %
 ExtraBenefitCondition = 0.0  #Procent % on special Conditions, when special Condition reached
 
 
@@ -262,9 +262,9 @@ msg = "Nothing to report"
 
 
 ##SELL
-if Historical_Data_15.loc[0, "rsma50"] > 1.02:
+if Historical_Data_15.loc[0, "rsma50"] > 1.024:
     action = "SELL"
-    msg = "SELL rsma50 > 1.02"
+    msg = "SELL rsma50 > 1.024"
     print(msg)
 
 if Historical_Data_15.loc[0, "rsma14"] > 1.04:
@@ -278,9 +278,9 @@ if Historical_Data_15.loc[0, "slopersma14"]  > 0.003 and Historical_Data_15.loc[
     msg = "SELL slope_rsma14"
     print(msg)
 
-if Historical_Data_15.loc[0, "rsi14"] > 70:
+if Historical_Data_15.loc[0, "rsi14"] > 74:  #war 70
     action = "SELL"
-    msg = "SELL rsi14 > 70"
+    msg = "SELL rsi14 > 74"
     print(msg)
 
 if Historical_Data_15.loc[0, "rsi25"] > 69:
@@ -311,7 +311,7 @@ if Historical_Data_15.loc[0, "rsi50"] > 67:
 
 #BUY
 
-if Historical_Data_15.loc[0, "rsma50"]  < 0.995 and Historical_Data_15.loc[0, "slope25_5"]  > 0.02:
+if Historical_Data_15.loc[0, "rsma50"]  < 0.995 and Historical_Data_15.loc[0, "slope25_5"]  > 0.0175:
     action = "BUY"
     print(Historical_Data_15.loc[0, "rsma50"])
     msg = "BUY RSMA50 < 0.995"
@@ -338,7 +338,6 @@ if Historical_Data_15.loc[0, "slopersma14"]  < -0.003 and Historical_Data_15.loc
     print(msg)
 
 
-
 #
 if Historical_Data_15.loc[0, "rsma50"]  < 0.98:
     action = "BUY"
@@ -346,11 +345,13 @@ if Historical_Data_15.loc[0, "rsma50"]  < 0.98:
     msg = "BUY RSMA50 < 0.98"
     print(msg)
 
+
 if Historical_Data_15.loc[0, "rsi14"] < 34:
     action = "BUY"
     print(Historical_Data_15.loc[0, "rsi14"])
     msg = "BUY rsi14 < 34"
     print(msg)
+
 
 if Historical_Data_15.loc[0, "rsi25"]  < 34:
     action = "BUY"
@@ -365,17 +366,20 @@ if Historical_Data_60.loc[0, "rsi14"] < 30:
     msg = "BUY 60rsi14 < 30"
     print(msg)
 
+
 if Historical_Data_60.loc[0, "rsi25"]  < 30:
     action = "BUY"
     print(Historical_Data_60.loc[0, "rsi25"])
     msg = "BUY 60rsi25 < 30"
     print(msg)
 
+
 if Historical_Data_60.loc[0, "rsi50"]  < 35:
     action = "BUY"
     print(Historical_Data_60.loc[0, "rsi50"])
     msg = "BUY 60rsi50 < 35"
     print(msg)
+
 
 if Historical_Data_60.loc[0, "rsma50"]  < 0.98:
     action = "BUY"
@@ -398,14 +402,43 @@ Last_BUY_price = Trading_History.loc[Index_Last_BUY,"current_price"]
 Limit_SELL_price = round(Last_BUY_price * (Minimum_Benefit + (ExtraBenefitCondition/100)), 2)
 
 # for 01 and 15 of each month, a higher minimum sell price of ExtraBenefit
-if Trading_History.loc[Index_Last_BUY, "date"][0:2] == "01":
+#dt.datetime.now().strftime("%d")
+#Trading_History.loc[Index_Last_BUY, "date"][0:2]
+#
+if dt.datetime.now().strftime("%d") == "01":
     Limit_SELL_price = round(Last_BUY_price * (Minimum_Benefit + (ExtraBenefit/100) +(ExtraBenefitCondition/100) ), 2)
 
-if Trading_History.loc[Index_Last_BUY, "date"][0:2] == "14":
+if dt.datetime.now().strftime("%d") == "14":
     Limit_SELL_price = round(Last_BUY_price * (Minimum_Benefit + (ExtraBenefit/100) + (ExtraBenefitCondition/100) ), 2)
 
-if Trading_History.loc[Index_Last_BUY, "date"][0:2] == "15":
+if dt.datetime.now().strftime("%d") == "15":
     Limit_SELL_price = round(Last_BUY_price * (Minimum_Benefit + (ExtraBenefit/100) + (ExtraBenefitCondition/100) ), 2)
+
+
+## BUY or SELL after a STOP LOSS
+Index_Last_STOP_LOSS = which(Trading_History.loc[:,"order"] == "SELL_STOP_LOSS")[0]
+Date_Last_STOP_LOSS = Trading_History.loc[Index_Last_STOP_LOSS, "date"]
+now = dt.datetime.now()
+
+Date_Last_STOP_LOSS = dt.datetime.strptime(Date_Last_STOP_LOSS,"%d.%m.%Y %H:%M:%S")
+Date_Last_STOP_LOSS = Date_Last_STOP_LOSS + dt.timedelta(minutes= 1440)  #1 day
+Date_Last_STOP_LOSS_SELL = Date_Last_STOP_LOSS + dt.timedelta(minutes= 4300) #3-day
+# now
+# Date_Last_STOP_LOSS
+# now > Date_Last_STOP_LOSS   #normal True
+#
+if now < Date_Last_STOP_LOSS and action == "BUY":
+    if currentPrice < (0.9 * Trading_History.loc[Index_Last_STOP_LOSS, "current_price"]):
+        print("BUY after STOP LOSS")
+        action = "BUY"
+    else:
+        action = "HOLD"
+if now < Date_Last_STOP_LOSS_SELL and action == "SELL": 
+    if currentPrice > (1.15 * Trading_History.loc[Index_Last_STOP_LOSS, "current_price"]):
+        print("SELL after STOP LOSS")
+        action = "SELL"
+    else:
+        action = "HOLD"
 
 
 if action == "SELL" :
