@@ -242,7 +242,7 @@ print(key_infos)
 # Trading_History
 Index_Last_BUY = which(Trading_History.loc[:,"order"] == "BUY")[0]
 STOP_LOSS_LIMIT = Trading_History.loc[Index_Last_BUY,"tradeable_value"]
-STOP_LOSS_LIMIT = round(0.8 * STOP_LOSS_LIMIT, 2)
+STOP_LOSS_LIMIT = round(0.89 * STOP_LOSS_LIMIT, 2)
 STOP_LOSS_LIMIT
 
 ##################################################
@@ -428,7 +428,7 @@ Date_Last_STOP_LOSS_SELL = Date_Last_STOP_LOSS + dt.timedelta(minutes= 4300) #3-
 # now > Date_Last_STOP_LOSS   #normal True
 #
 if now < Date_Last_STOP_LOSS and action == "BUY":
-    if currentPrice < (0.9 * Trading_History.loc[Index_Last_STOP_LOSS, "current_price"]):
+    if currentPrice < (0.96 * Trading_History.loc[Index_Last_STOP_LOSS, "current_price"]):
         print("BUY after STOP LOSS")
         action = "BUY"
     else:
@@ -437,6 +437,7 @@ if now < Date_Last_STOP_LOSS_SELL and action == "SELL":
     if currentPrice > (1.15 * Trading_History.loc[Index_Last_STOP_LOSS, "current_price"]):
         print("SELL after STOP LOSS")
         action = "SELL"
+        Limit_SELL_price = round(Last_BUY_price * 1.15)
     else:
         action = "HOLD"
 
