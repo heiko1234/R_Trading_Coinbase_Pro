@@ -278,14 +278,21 @@ if Historical_Data_15.loc[0, "slopersma14"]  > 0.003 and Historical_Data_15.loc[
     msg = "SELL slope_rsma14"
     print(msg)
 
-if Historical_Data_15.loc[0, "rsi14"] > 74:  #war 70
+
+if Historical_Data_15.loc[0, "rsi14"] > 78:  #war 70, 74, nun 78
     action = "SELL"
-    msg = "SELL rsi14 > 74"
+    msg = "SELL rsi14 > 78"
     print(msg)
 
-if Historical_Data_15.loc[0, "rsi25"] > 69:
+
+if Historical_Data_15.loc[0, "rsi14"] > 74 and Historical_Data_15.loc[0, "rsi25"] > 70:  #war 70, 74, nun 78 und
     action = "SELL"
-    msg = "SELL rsi25 > 69"   # war > 65
+    msg = "SELL rsi14 > 74 & rsi25 > 70"
+    print(msg)
+
+if Historical_Data_15.loc[0, "rsi25"] > 72:
+    action = "SELL"
+    msg = "SELL rsi25 > 72"   # war > 65, 72
     print(msg)
 
 if Historical_Data_15.loc[0, "rsi50"] > 67:
@@ -317,7 +324,15 @@ if Historical_Data_15.loc[0, "rsma50"]  < 0.995 and Historical_Data_15.loc[0, "s
     msg = "BUY RSMA50 < 0.995"
     print(msg)
 
-if Historical_Data_15.loc[0, "rsma14"]  < 0.99 and Historical_Data_15.loc[0, "slope25_5"]  > -0.02:
+
+if Historical_Data_15.loc[0, "rsma14"]  < 0.995 and Historical_Data_15.loc[0, "s4s10rsi14"]  > 0.1:
+    action = "BUY"
+    print(Historical_Data_15.loc[0, "rsma14"])
+    msg = "BUY RSMA14 < 0.995 & s4s10rsi14 > 0.1"
+    print(msg)
+
+
+if Historical_Data_15.loc[0, "rsma14"]  < 0.99 and Historical_Data_15.loc[0, "slope25_5"]  > -0.04:
     action = "BUY"
     print(Historical_Data_15.loc[0, "rsma14"])
     msg = "BUY RSMA14 < 0.99"
@@ -431,6 +446,7 @@ if now < Date_Last_STOP_LOSS and action == "BUY":
     if currentPrice < (0.96 * Trading_History.loc[Index_Last_STOP_LOSS, "current_price"]):
         print("BUY after STOP LOSS")
         action = "BUY"
+        msg = "BUY after STOP LOSS"
     else:
         action = "HOLD"
 if now < Date_Last_STOP_LOSS_SELL and action == "SELL": 
@@ -438,6 +454,7 @@ if now < Date_Last_STOP_LOSS_SELL and action == "SELL":
         print("SELL after STOP LOSS")
         action = "SELL"
         Limit_SELL_price = round(Last_BUY_price * 1.15)
+        msg = "SELL after STOP LOSS"
     else:
         action = "HOLD"
 
