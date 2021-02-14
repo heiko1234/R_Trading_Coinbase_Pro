@@ -41,11 +41,14 @@ raspberry = True    #True or False
 # Activates or deactivates the Trading Algorithm
 Automated_Trading = True    #False   #or True
 
+# STOP-LOSS Active
+STOP_LOSS_Active = False  #False or True
+
 # No Trading, only for Testing, Test run when TRUE
 Test_functions = False     #False or True
 
 # Force a BUY or Sell
-Force = False
+Force = False   #False  or True
 Kind_Force = "BUY"
 
 
@@ -89,7 +92,7 @@ auth_client = cbpro.AuthenticatedClient(my_api_key,my_secret,my_passphrase)
 MinimumInvest = 20.00  #EUR
 MinimumInvestLog = 20.00   #EUR
 MinimumCryptoLog = 0.01   #ETH
-MinimumBenefit = 1.5  # Procent %
+MinimumBenefit = 2.0  # Procent %
 ExtraBenefit = 2.2  # Procent % on 1. and 15. of each month, 2% more, total 4.5 %
 ExtraBenefitCondition = 0.0  #Procent % on special Conditions, when special Condition reached
 
@@ -143,6 +146,7 @@ newData = auth_client.get_product_ticker(product_id=currency)
 print(newData)
 currentPrice=newData['price']
 currentPrice = round(float(currentPrice), 2)
+print("current price")
 print(currentPrice)
 
 # except:
@@ -233,17 +237,26 @@ ORDER = action
 # Summary of infos
 key_infos = [[dt_string, ORDER, tradeable_FIAT, available_Crypto, owned_Crypto, owned_FIAT, float(currentPrice), tradeable_value, total_value] ]
 key_infos = pd.DataFrame(data = key_infos, columns = ["date", "order", "tradeable_fiat", "tradeable_crypto", "owned_crypto", "owned_fiat", "current_price", "tradeable_value", "total_value"])
-print(key_infos)
-
+#
+print("####")
+print(key_infos.iloc[:,0:4])
+print(key_infos.iloc[:,4:8])
+print(key_infos.iloc[:,8:11])
+print("####")
 
 
 #STOP LOSS LIMIT from last BUY
 # Trading_History = pd.read_csv("C:/Users/Heiko/Visual.Studio/R_Trading_Coinbase_Pro/TradingLog.csv")
 # Trading_History
 Index_Last_BUY = which(Trading_History.loc[:,"order"] == "BUY")[0]
-STOP_LOSS_LIMIT = Trading_History.loc[Index_Last_BUY,"tradeable_value"]
-STOP_LOSS_LIMIT = round(0.89 * STOP_LOSS_LIMIT, 2)
+STOP_LOSS_Msg = Trading_History.loc[Index_Last_BUY, "Order_Type"]   
+STOP_LOSS_Limit = Trading_History.loc[Index_Last_BUY, "current_price"]   #"tradeable_value"]
+
+STOP_LOSS_LIMIT = round(0.89 * STOP_LOSS_Limit, 2) 
 STOP_LOSS_LIMIT
+
+
+Sell_Limit_Price = 0.98 * Trading_History.loc[which(Trading_History.loc[:,"order"] == "SELL")[0], "current_price"] 
 
 ##################################################
 
@@ -325,7 +338,7 @@ if Historical_Data_15.loc[0, "rsma50"]  < 0.995 and Historical_Data_15.loc[0, "s
     print(msg)
 
 
-if Historical_Data_15.loc[0, "rsma14"]  < 0.995 and Historical_Data_15.loc[0, "s4s10rsi14"]  > 0.1:
+if Historical_Data_15.loc[0, "rsma14"]  < 0.995 and Historical_Data_15.loc[0, "s4s10rsi14"]  > 0.1 and currentPrice <= Sell_Limit_Price :
     action = "BUY"
     print(Historical_Data_15.loc[0, "rsma14"])
     msg = "BUY RSMA14 < 0.995 & s4s10rsi14 > 0.1"
@@ -337,6 +350,8 @@ if Historical_Data_15.loc[0, "rsma14"]  < 0.99 and Historical_Data_15.loc[0, "sl
     print(Historical_Data_15.loc[0, "rsma14"])
     msg = "BUY RSMA14 < 0.99"
     print(msg)
+print("rsma14:")
+print(Historical_Data_15.loc[0, "rsma14"])
 
 
 if Historical_Data_15.loc[0, "rsma14"]  < 0.97:
@@ -366,6 +381,8 @@ if Historical_Data_15.loc[0, "rsi14"] < 34:
     print(Historical_Data_15.loc[0, "rsi14"])
     msg = "BUY rsi14 < 34"
     print(msg)
+print("rsi14:")
+print(Historical_Data_15.loc[0, "rsi14"])
 
 
 if Historical_Data_15.loc[0, "rsi25"]  < 34:
@@ -373,6 +390,8 @@ if Historical_Data_15.loc[0, "rsi25"]  < 34:
     print(Historical_Data_15.loc[0, "rsi25"])
     msg = "BUY rsi25 < 34"
     print(msg)
+print("rsi25:")
+print(Historical_Data_15.loc[0, "rsi25"] )
 
 # 
 if Historical_Data_60.loc[0, "rsi14"] < 30:
@@ -486,7 +505,7 @@ if Test_functions == True:
 #### Date and time compairison, analysis date in timeframe of - 17 or 62 Minutes
 
 #Now
-now16 = dt.datetime.now()- dt.timedelta(minutes= 18)
+now16 = dt.datetime.now()- dt.timedelta(minutes= 19)
 actual_time16 = now16.strftime("%d.%m.%Y %H:%M:%S")
 actual_time16
 
@@ -531,7 +550,7 @@ print("###############")
 if Test_functions == True:
     print("Test of functions")
     action = "BUY"
-    print(action)    
+    print(action)
 
 if Force == True:
     action = Kind_Force
@@ -539,6 +558,10 @@ if Force == True:
         msg = "Forced BUY"
     if Kind_Force == "SELL":
         msg = "Forced SELL"
+
+if Force == True:
+    print("Action forced")
+    print(action)
 
 ##################################################################
 ###Placing Orders###
@@ -566,7 +589,8 @@ if action == "BUY" and Automated_Trading == True and tradeable_FIAT > MinimumInv
 
     key_infos = [[dt_string, ORDER, tradeable_FIAT, available_Crypto, owned_Crypto, owned_FIAT, float(currentPrice), tradeable_value, total_value, msg] ]
     key_infos = pd.DataFrame(data = key_infos, columns = ["date", "order", "tradeable_fiat", "tradeable_crypto", "owned_crypto", "owned_fiat", "current_price", "tradeable_value", "total_value", "Order_Type"])
-    print(key_infos)
+    print(key_infos.iloc[:,0:6])
+    print(key_infos.iloc[:,6:11])
     print(msg)
     if raspberry == True:
         Trading_History = Trading_History.iloc[:,1:]
@@ -603,7 +627,8 @@ if action == "SELL" and Automated_Trading == True and available_Crypto > 0:
 
     key_infos = [[dt_string, ORDER, tradeable_FIAT, available_Crypto, owned_Crypto, owned_FIAT, float(currentPrice), tradeable_value, total_value, msg] ]
     key_infos = pd.DataFrame(data = key_infos, columns = ["date", "order", "tradeable_fiat", "tradeable_crypto", "owned_crypto", "owned_fiat", "current_price", "tradeable_value", "total_value", "Order_Type"])
-    print(key_infos)
+    print(key_infos.iloc[:,0:6])
+    print(key_infos.iloc[:,6:11])
     print(msg)
     if raspberry == True:
         Trading_History = Trading_History.iloc[:,1:]
@@ -619,10 +644,11 @@ if action == "SELL" and Automated_Trading == True and available_Crypto > 0:
 
 
 # Stop loss: sell everything and stop trading if your value is less than 80% of last buy investment
-if (possibleIncome_available) <= STOP_LOSS_LIMIT:
+#if (possibleIncome_available) <= STOP_LOSS_LIMIT:
+if (currentPrice) <= STOP_LOSS_LIMIT and STOP_LOSS_Active == True:
 
     # If there is any of the crypto owned, sell it all
-    if available_Crypto > 0.0:
+    if available_Crypto > 0.0 and STOP_LOSS_Msg != "STOP LOSS":
         if Test_functions != True:
             auth_client.place_market_order(product_id = currency, side='sell', size = str(available_Crypto))
         print("STOP LOSS SOLD ALL")
